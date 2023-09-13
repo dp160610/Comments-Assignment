@@ -1,6 +1,6 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
-const Comment = ({ comment, onReply }) => {
+const Comment = ({ comment, comments, setComments }) => {
   const [isReplying, setIsReplying] = useState(false);
   const [replyText, setReplyText] = useState("");
 
@@ -12,18 +12,23 @@ const Comment = ({ comment, onReply }) => {
     e.preventDefault();
     if (replyText.trim() !== "") {
       const newComment = { text: replyText, childComments: [] };
-      onReply(newComment);
+
+      // Update the childComments array for the current comment
+      const updatedChildComments = [...comments, newComment];
+
+      // Call the setComments function from the parent component
+      setComments(updatedChildComments);
+
+      // Clear replyText and setIsReplying here
       setReplyText("");
       setIsReplying(false);
     }
-  };  
+  };
 
   return (
     <div>
       <p>{comment.text}</p>
-      <button onClick={handleReplyClick}>
-        {isReplying ? "Cancel" : "Reply"}
-      </button>
+      <button onClick={handleReplyClick}>{isReplying ? "Cancel" : "Reply"}</button>
       {isReplying && (
         <form onSubmit={handleReplySubmit}>
           <input
@@ -38,15 +43,16 @@ const Comment = ({ comment, onReply }) => {
         </form>
       )}
       <div style={{ marginLeft: "20px" }}>
-        {comment.childComments.map((childComment, index) => (
+        {comments.map((childComment, index) => (
           <Comment
             key={index}
             comment={childComment}
-            onReply={(newComment) => {
-              const updatedComments = [...comment.childComments];
-              updatedComments[index].childComments.push(newComment);
-              setReplyText("");
-              setIsReplying(false);
+            comments={childComment.childComments}
+            setComments={(newChildComments) => {
+              // Update the childComments array for the current comment
+              const updatedChildComments = [...comments];
+              updatedChildComments[index].childComments = newChildComments;
+              setComments(updatedChildComments);
             }}
           />
         ))}

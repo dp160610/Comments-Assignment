@@ -7,18 +7,14 @@ function App() {
   useEffect(() => {
     const savedComments = JSON.parse(localStorage.getItem("comments"));
 
-    if (
-      savedComments &&
-      Array.isArray(savedComments) &&
-      savedComments.length > 0
-    ) {
+    if (savedComments && Array.isArray(savedComments) && savedComments.length > 0) {
       setComments(savedComments);
-    } else {
+    } else if (!savedComments) {
       setComments([
         {
           text: "Top-level Comment",
-          childComments: []
-        }
+          childComments: [],
+        },
       ]);
     }
   }, []);
@@ -34,9 +30,11 @@ function App() {
         <Comment
           key={index}
           comment={comment}
-          onReply={(newComment) => {
+          comments={comment.childComments} // Pass childComments as comments prop
+          setComments={(newChildComments) => {
+            // Update the childComments array for the specific comment
             const updatedComments = [...comments];
-            updatedComments[index].childComments.push(newComment);
+            updatedComments[index].childComments = newChildComments;
             setComments(updatedComments);
           }}
         />
